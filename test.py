@@ -1,34 +1,36 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+import cv2
+import dropbox
+import random
+import time
+startTime = time.time()
 
-df = pd.read_csv('FilteredData.csv')
+def take_picture():
+    number = random.randint(0,100)
+    videoPicture = cv2.VideoCapture(0)
+    result = True
+    while(result):
+        ret,frame = videoPicture.read()
+        imageName = 'picture'+ str(number) + '.png'
+        cv2.imwrite(imageName,frame)
+        result = False
+    return imageName
+    videoPicture.release()
+    cv2.destroyAllWindows()
+    print('picture has been captured')
 
-name = df['Star_name'].to_list()
-mass = df['Mass'].to_list()
-radius = df['Radius'].to_list()
-distance = df['Distance'].to_list()
-gravity = df['Gravity'].to_list()
+def uploadPics(imageName):
+    access_token = '_kdXQaWORScAAAAAAAAAAev3fi46cAMrii2jyYnETXDzuErkYiox6TyM0gDwssMe'
+    filefrom = imageName
+    fileto = '/Project102/'+imageName
+    dbx = dropbox.Dropbox(access_token)
+    with open(filefrom,'rb') as f:
+        dbx.files_upload(f.read(),fileto,mode = dropbox.files.WriteMode.overwrite)
+        print('file has been uploaded')
 
-plt.bar(name,mass)
-plt.title("Name & Mass of the star")
-plt.xlabel("Name")
-plt.ylabel("Mass")
-plt.show()
+def main():
+    while(True):
+        if((time.time()-startTime)>=300and(time.time()-startTime)%300==0):
+            name = take_snapshot()
+            uploadPics(name)
 
-plt.bar(name,radius)
-plt.title("Name & Radius of the star")
-plt.xlabel("Name")
-plt.ylabel("Radius")
-plt.show()
-
-plt.bar(name,distance)
-plt.title("Name & Distance of the star")
-plt.xlabel("Name")
-plt.ylabel("Distance")
-plt.show()
-
-plt.bar(name,gravity)
-plt.title("Name & Gravity of the star")
-plt.xlabel("Name")
-plt.ylabel("Gravity")
-plt.show()
+main()
